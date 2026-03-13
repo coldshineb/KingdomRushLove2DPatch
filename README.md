@@ -9,6 +9,49 @@
 
 修改位于 `com/google/licensingservicehelper/LicensingServiceHelper$2` 下的 `public verifyLicense(ILandroid/os/Bundle;)V` 方法，伪造返回给底层授权的字符串，使得购买的正版游戏可以在任意设备上运行
 
+联盟使用新版 LVL
+```
+.method public verifyLicense(ILandroid/os/Bundle;)V
+    .locals 1
+
+    const-string p1, "LICENSE_DATA"
+    invoke-virtual {p2, p1}, Landroid/os/Bundle;->getString(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object p1
+
+    if-nez p1, :cond_0
+
+    const-string p1, "{\"iat\":0,\"appSpecificUserId\":\"bypassed\",\"packageName\":\"bypassed\"}"
+
+    :cond_0
+    const-string p2, "bypassed_license"
+    iget-object v0, p0, Lcom/google/licensingservicehelper/LicensingServiceHelper$2;->this$0:Lcom/google/licensingservicehelper/LicensingServiceHelper;
+    invoke-static {v0}, Lcom/google/licensingservicehelper/LicensingServiceHelper;->access$400(Lcom/google/licensingservicehelper/LicensingServiceHelper;)Lcom/google/licensingservicehelper/LicensingServiceCallback;
+
+    move-result-object v0
+
+    invoke-interface {v0, p1, p2}, Lcom/google/licensingservicehelper/LicensingServiceCallback;->allow(Ljava/lang/String;Ljava/lang/String;)V
+
+    return-void
+.end method
+```
+
+王国保卫战、前线、起源使用旧版 LVL
+```
+.method public verifyLicense(ILandroid/os/Bundle;)V
+    .registers 3
+
+    iget-object v0, p0, Lcom/google/licensingservicehelper/LicensingServiceHelper$2;->this$0:Lcom/google/licensingservicehelper/LicensingServiceHelper;
+    invoke-static {v0}, Lcom/google/licensingservicehelper/LicensingServiceHelper;->access$400(Lcom/google/licensingservicehelper/LicensingServiceHelper;)Lcom/google/licensingservicehelper/LicensingServiceCallback;
+    move-result-object v0
+
+    const-string v1, "bypassed"
+
+    invoke-interface {v0, v1}, Lcom/google/licensingservicehelper/LicensingServiceCallback;->allow(Ljava/lang/String;)V
+
+    return-void
+.end method
+```
+
 ## 内购与内容解锁修补
 
 本方案修改了底层 Love2D (LuaJIT) 引擎的核心计费脚本 `platform_services_gpiab.lua`，本脚本需要使用 luajit-decompiler-v2 等工具解密为可读文本后编辑，因 Love2D 引擎支持同时读取已编译和未编译的脚本，因此无需在修改后考虑回编译问题
